@@ -1,0 +1,197 @@
+#################################################################################
+#
+# Editor Configurations
+#
+# For details, see: https://editorconfig.org/#file-format-details
+#
+# For Visual Studio additions, see: https://aka.ms/editorconfigdocs
+#
+# You can find the latest version of this file here: https://github.com/skrysm/base-dotnet
+#
+#################################################################################
+
+root = true
+
+#
+# All files
+#
+[*]
+# For reasoning about encoding, see: https://manski.net/articles/utf8-bom
+charset = utf-8
+
+end_of_line = lf
+
+indent_style = space
+indent_size = 4
+
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+
+#
+# Markdown
+#
+[*.md]
+charset = utf-8-bom
+
+# For explanation why spaces are used for Markdown, see: https://manski.net/articles/markdown/indentation
+indent_style = space
+indent_size = 4
+
+
+#
+# .json files
+#
+[*.json]
+indent_style = tab
+indent_size = 4
+
+
+#
+# .yaml files
+#
+[*.{yml,yaml}]
+indent_size = 2
+
+
+#
+# Windows batch files
+#
+[*.{bat,cmd}]
+end_of_line = crlf
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+#
+# C# files
+#
+[*.{cs,cs.mustache}]
+# BOM is supported and files may contain non-English texts (think: author names, comments
+# and maybe even strings to show to the user).
+charset = utf-8-bom
+
+# For explanation why "crlf", see: https://manski.net/articles/dotnet/line-endings
+# NOTE: This is also enforced through .gitattributes.
+end_of_line = crlf
+
+
+#
+# XAML files
+#
+[*.xaml]
+end_of_line = crlf
+
+
+#
+# VS project files
+#
+[*.csproj]
+# BOM is supported.
+charset = utf-8-bom
+
+# This is how Visual Studio creates project files.
+indent_size = 2
+
+# Unfortunately, Visual Studio seems to ignore the end-of-line style for .csproj
+# files - and always creates .csproj files with crlf. Thus, we enforce the end-of-line
+# characters in .gitattributes instead.
+end_of_line = unset
+
+
+#
+# Razor files
+#
+[*.cshtml]
+# BOM is supported and files may contain native (i.e. non-English) texts.
+charset = utf-8-bom
+
+
+#
+# .resx files
+#
+[*.resx]
+end_of_line = crlf
+# The header contains various trailing whitespace which is re-added every time the file is edited
+# with the Visual Studio editor. So don't bother trimming them.
+trim_trailing_whitespace = false
+# The .resx editor always removes the final line.
+insert_final_newline = false
+
+
+#
+# T4 text template files
+#
+[*.tt]
+# BOM is supported and because the files may contain native (i.e. non-English)
+# text, it's important that these files are encoded properly.
+charset = utf-8-bom
+# Must be CRLF; they don't work well with just LF
+end_of_line = crlf
+
+
+#
+# .props files
+#
+[*.{props,targets,tasks}]
+# BOM is supported.
+charset = utf-8-bom
+
+# This mirrors the indent size for .csproj files.
+indent_size = 2
+
+
+#
+# Visual Studio Solution files
+#
+[*.sln]
+# Visual Studio creates .sln files with BOM.
+charset = utf-8-bom
+end_of_line = crlf
+# .sln files require tabs or the solution won't load
+indent_style = tab
+indent_size = 4
+
+
+[*.slnx]
+# Visual Studio creates .sln files with BOM.
+charset = utf-8-bom
+end_of_line = crlf
+indent_style = space
+indent_size = 2
+
+
+#
+# ReSharper settings files
+#
+[*.DotSettings]
+# ReSharper creates .DotSettings files with BOM.
+charset = utf-8-bom
+indent_style = tab
+
+
+#
+# Publishing profiles
+#
+[*.pubxml]
+charset = utf-8-bom
+insert_final_newline = false
+indent_size = 2
+
+
+#
+# NuGet.config file
+# NOTE: These settings are mirrored from the settings used on TFS for its NuGet.config.
+#
+[NuGet.config]
+charset = utf-8-bom
+indent_size = 2
+end_of_line = crlf
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#
+# Repository custom settings
+#
