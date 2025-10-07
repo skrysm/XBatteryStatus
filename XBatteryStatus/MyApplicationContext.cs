@@ -31,7 +31,7 @@ public class MyApplicationContext : ApplicationContext
     private readonly string _version = "V1.3.4";
     private readonly string _releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
-    private readonly NotifyIcon _notifyIcon = new NotifyIcon();
+    private readonly NotifyIcon _notifyIcon = new();
     private readonly ContextMenuStrip _contextMenu;
     private readonly ToolStripMenuItem _themeButton;
     private readonly ToolStripMenuItem _hideButton;
@@ -42,7 +42,7 @@ public class MyApplicationContext : ApplicationContext
     private readonly Timer _hideTimeoutTimer;
     private readonly Timer _softwareUpdateTimer;
 
-    public List<BluetoothLEDevice> PairedGamepads = new List<BluetoothLEDevice>();
+    public List<BluetoothLEDevice> PairedGamepads = new();
     public BluetoothLEDevice ConnectedGamepad;
     public GattCharacteristic BatteryCharacteristic;
     public Radio BluetoothRadio;
