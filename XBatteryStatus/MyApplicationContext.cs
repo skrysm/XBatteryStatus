@@ -32,7 +32,6 @@ public class MyApplicationContext : ApplicationContext
     private const string RELEASE_URL = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
     private readonly NotifyIcon _notifyIcon = new();
-    private readonly ContextMenuStrip _contextMenu;
     private readonly ToolStripMenuItem _themeButton;
     private readonly ToolStripMenuItem _hideButton;
     private readonly ToolStripMenuItem _numbersButton;
@@ -68,30 +67,30 @@ public class MyApplicationContext : ApplicationContext
         this._notifyIcon.Text = "XBatteryStatus: Looking for paired controller";
         this._notifyIcon.Visible = true;
 
-        this._contextMenu = new ContextMenuStrip();
+        var contextMenu = new ContextMenuStrip();
 
         this._themeButton = new ToolStripMenuItem("Theme");
         this._themeButton.DropDownItems.Add("Auto", null, ThemeClicked);
         this._themeButton.DropDownItems.Add("Light", null, ThemeClicked);
         this._themeButton.DropDownItems.Add("Dark", null, ThemeClicked);
         UpdateThemeButton();
-        this._contextMenu.Items.Add(this._themeButton);
+        contextMenu.Items.Add(this._themeButton);
 
         this._hideButton = new ToolStripMenuItem("Auto Hide", null, HideClicked);
         UpdateHideButton();
-        this._contextMenu.Items.Add(this._hideButton);
+        contextMenu.Items.Add(this._hideButton);
 
         this._numbersButton = new ToolStripMenuItem("Numeric", null, NumbersClicked);
         UpdateNumbersButton();
-        this._contextMenu.Items.Add(this._numbersButton);
+        contextMenu.Items.Add(this._numbersButton);
 
         ToolStripMenuItem versionButton = new ToolStripMenuItem(VERSION, null, VersionClicked);
-        this._contextMenu.Items.Add(versionButton);
+        contextMenu.Items.Add(versionButton);
 
         ToolStripMenuItem exitButton = new ToolStripMenuItem("Exit", null, ExitClicked);
-        this._contextMenu.Items.Add(exitButton);
+        contextMenu.Items.Add(exitButton);
 
-        this._notifyIcon.ContextMenuStrip = this._contextMenu;
+        this._notifyIcon.ContextMenuStrip = contextMenu;
 
         var radios = Radio.GetRadiosAsync().GetResults();
         this._bluetoothRadio = radios.FirstOrDefault(radio => radio.Kind == RadioKind.Bluetooth);
