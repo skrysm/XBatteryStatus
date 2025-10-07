@@ -10,7 +10,7 @@ internal static class Program
     ///  The main entry point for the application.
     /// </summary>
     [STAThread]
-    private static void Main(string[] args)
+    private static void Main()
     {
         var proc = Process.GetCurrentProcess();
         Process[] processes = Process.GetProcessesByName(proc.ProcessName);
@@ -25,7 +25,10 @@ internal static class Program
                     {
                         process.Kill();
                     }
-                    catch { }
+                    catch
+                    {
+                        // Ignore exceptions.
+                    }
                 }
             }
         }
