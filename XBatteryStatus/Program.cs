@@ -2,38 +2,37 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace XBatteryStatus
-{
-    internal static class Program
-    {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        private static void Main(string[] args)
-        {
-            var proc = Process.GetCurrentProcess();
-            Process[] processes = Process.GetProcessesByName(proc.ProcessName);
+namespace XBatteryStatus;
 
-            if (processes.Length > 1)
+internal static class Program
+{
+    /// <summary>
+    ///  The main entry point for the application.
+    /// </summary>
+    [STAThread]
+    private static void Main(string[] args)
+    {
+        var proc = Process.GetCurrentProcess();
+        Process[] processes = Process.GetProcessesByName(proc.ProcessName);
+
+        if (processes.Length > 1)
+        {
+            foreach (var process in processes)
             {
-                foreach (var process in processes)
+                if (process.Id != proc.Id)
                 {
-                    if (process.Id != proc.Id)
+                    try
                     {
-                        try
-                        {
-                            process.Kill();
-                        }
-                        catch { }
+                        process.Kill();
                     }
+                    catch { }
                 }
             }
-
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MyApplicationContext());
         }
+
+        Application.SetHighDpiMode(HighDpiMode.SystemAware);
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        Application.Run(new MyApplicationContext());
     }
 }
