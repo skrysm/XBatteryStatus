@@ -142,26 +142,27 @@ public class MyApplicationContext : ApplicationContext
                             ToastNotificationManagerCompat.Uninstall();
                             ToastNotificationManagerCompat.History.Clear();
 
-                            string path = Path.Combine(Path.GetTempPath(), "XBatteryStatus", "XBatteryStatus.msi");
+                            string localMsiDirPath = Path.Combine(Path.GetTempPath(), "XBatteryStatus");
+                            string localMsiPath = Path.Combine(localMsiDirPath, "XBatteryStatus.msi");
 
-                            if (!Directory.Exists(Path.GetDirectoryName(path)))
+                            if (!Directory.Exists(localMsiDirPath))
                             {
-                                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                                Directory.CreateDirectory(localMsiDirPath);
                             }
 
-                            if (File.Exists(path))
+                            if (File.Exists(localMsiPath))
                             {
-                                File.Delete(path);
+                                File.Delete(localMsiPath);
                             }
 
                             using (var client = new WebClient())
                             {
-                                client.DownloadFile(latest.Assets.First(x => x.BrowserDownloadUrl.EndsWith(".msi")).BrowserDownloadUrl, path);
+                                client.DownloadFile(latest.Assets.First(x => x.BrowserDownloadUrl.EndsWith(".msi")).BrowserDownloadUrl, localMsiPath);
                             }
 
                             Process process = new Process();
                             process.StartInfo.FileName = "msiexec";
-                            process.StartInfo.Arguments = " /i " + path + " /qr";
+                            process.StartInfo.Arguments = " /i " + localMsiPath + " /qr";
                             process.StartInfo.Verb = "runas";
                             process.Start();
 
