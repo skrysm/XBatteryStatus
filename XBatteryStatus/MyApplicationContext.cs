@@ -12,7 +12,6 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Radios;
-using Windows.Foundation.Collections;
 using Windows.Storage.Streams;
 
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -137,7 +136,6 @@ public class MyApplicationContext : ApplicationContext
                     ToastNotificationManagerCompat.OnActivated += toastArgs =>
                     {
                         ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
-                        ValueSet userInput = toastArgs.UserInput;
 
                         if (args.ToString() == "action=update")
                         {
@@ -158,7 +156,7 @@ public class MyApplicationContext : ApplicationContext
 
                             using (var client = new WebClient())
                             {
-                                client.DownloadFile(latest.Assets.Where(x => x.BrowserDownloadUrl.EndsWith(".msi")).First().BrowserDownloadUrl, path);
+                                client.DownloadFile(latest.Assets.First(x => x.BrowserDownloadUrl.EndsWith(".msi")).BrowserDownloadUrl, path);
                             }
 
                             Process process = new Process();
@@ -200,7 +198,7 @@ public class MyApplicationContext : ApplicationContext
     {
         if (this._bluetoothRadio?.State == RadioState.On)
         {
-            List<BluetoothLEDevice> foundGamepads = new List<BluetoothLEDevice>();
+            var foundGamepads = new List<BluetoothLEDevice>();
 
             foreach (var device in await DeviceInformation.FindAllAsync())
             {
@@ -208,12 +206,12 @@ public class MyApplicationContext : ApplicationContext
                 {
                     BluetoothLEDevice bleDevice = await BluetoothLEDevice.FromIdAsync(device.Id);
 
-                    if (bleDevice?.Appearance.SubCategory == BluetoothLEAppearanceSubcategories.Gamepad)//get the gamepads
+                    if (bleDevice?.Appearance.SubCategory == BluetoothLEAppearanceSubcategories.Gamepad) //get the gamepads
                     {
                         GattDeviceService service = bleDevice.GetGattService(new Guid("0000180f-0000-1000-8000-00805f9b34fb"));
                         GattCharacteristic characteristic = service.GetCharacteristics(new Guid("00002a19-0000-1000-8000-00805f9b34fb")).First();
 
-                        if (service != null && characteristic != null)//get the gamepads with battery status
+                        if (service != null && characteristic != null) //get the gamepads with battery status
                         {
                             foundGamepads.Add(bleDevice);
                         }
@@ -286,11 +284,11 @@ public class MyApplicationContext : ApplicationContext
         }
         else if (sender == this._connectedGamepad)
         {
-            FindBleController();//another controller might be connected
+            FindBleController(); //another controller might be connected
         }
     }
 
-    public void ConnectGamepad(BluetoothLEDevice device)
+    private void ConnectGamepad(BluetoothLEDevice device)
     {
         if (this._connectedGamepad == null || this._connectedGamepad.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
         {
@@ -310,7 +308,7 @@ public class MyApplicationContext : ApplicationContext
         }
     }
 
-    public void Update()
+    private void Update()
     {
         bool enabled = (this._bluetoothRadio?.State == RadioState.On && this._connectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected) || this._hideTimeoutTimer.Enabled;
         this._notifyIcon.Visible = Settings.Default.hide ? enabled : true;
@@ -426,7 +424,7 @@ public class MyApplicationContext : ApplicationContext
         Update();
     }
 
-    public bool IsLightMode()
+    private static bool IsLightMode()
     {
         RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
 
@@ -447,7 +445,7 @@ public class MyApplicationContext : ApplicationContext
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     private static extern bool DestroyIcon(IntPtr handle);
 
-    public void SetIcon(int val, string s = "")
+    private void SetIcon(int val, string s = "")
     {
         if (this._notifyIcon.Icon != null)
         {
@@ -457,7 +455,7 @@ public class MyApplicationContext : ApplicationContext
         this._notifyIcon.Icon = GetIcon(val, s);
     }
 
-    public Icon GetIcon(int val, string s = "")
+    private Icon GetIcon(int val, string s = "")
     {
         var icon = Resources.icon00;
 
@@ -492,17 +490,17 @@ public class MyApplicationContext : ApplicationContext
 
         if ((Settings.Default.theme == 0 && !this._lightMode) || Settings.Default.theme == 1)
         {
-            IntPtr hicon = icon.GetHicon();
-            return Icon.FromHandle(hicon);
+            IntPtr hIcon = icon.GetHicon();
+            return Icon.FromHandle(hIcon);
         }
         else
         {
-            IntPtr hicon = InvertBitmap(icon).GetHicon();
-            return Icon.FromHandle(hicon);
+            IntPtr hIcon = InvertBitmap(icon).GetHicon();
+            return Icon.FromHandle(hIcon);
         }
     }
 
-    public Bitmap DigitToBitmap(int digit)
+    private static Bitmap DigitToBitmap(int digit)
     {
         return digit switch
         {
@@ -516,13 +514,13 @@ public class MyApplicationContext : ApplicationContext
             7 => Resources.number7,
             8 => Resources.number8,
             9 => Resources.number9,
-            _ => Resources.number0
+            _ => Resources.number0,
         };
     }
 
-    public Bitmap AddDigit(Bitmap bitmap, Bitmap number, bool bottom)
+    private static void AddDigit(Bitmap bitmap, Bitmap number, bool bottom)
     {
-        int xStart = 21;
+        const int X_START = 21;
         int yStart = bottom ? 17 : 6;
 
         for (int y = 0; y < number.Height; y++)
@@ -532,15 +530,13 @@ public class MyApplicationContext : ApplicationContext
                 Color pixelColor = number.GetPixel(x, y);
                 if (pixelColor.A > 0)
                 {
-                    bitmap.SetPixel(x + xStart, y + yStart, pixelColor);
+                    bitmap.SetPixel(x + X_START, y + yStart, pixelColor);
                 }
             }
         }
-
-        return bitmap;
     }
 
-    public Bitmap AddPercentage(Bitmap bitmap, int val)
+    private static void AddPercentage(Bitmap bitmap, int val)
     {
         int yStart = 7 + (int)((100 - val) / 5.0 + 0.5);
 
@@ -555,14 +551,12 @@ public class MyApplicationContext : ApplicationContext
                 }
             }
         }
-
-        return bitmap;
     }
 
-    public Bitmap AddSymbol(Bitmap bitmap, Bitmap symbol)
+    private static void AddSymbol(Bitmap bitmap, Bitmap symbol)
     {
-        int xStart = 19;
-        int yStart = 6;
+        const int X_START = 19;
+        const int Y_START = 6;
 
         for (int y = 0; y < symbol.Height; y++)
         {
@@ -571,15 +565,13 @@ public class MyApplicationContext : ApplicationContext
                 Color pixelColor = symbol.GetPixel(x, y);
                 if (pixelColor.A > 0)
                 {
-                    bitmap.SetPixel(x + xStart, y + yStart, pixelColor);
+                    bitmap.SetPixel(x + X_START, y + Y_START, pixelColor);
                 }
             }
         }
-
-        return bitmap;
     }
 
-    public Bitmap InvertBitmap(Bitmap bitmap)
+    private static Bitmap InvertBitmap(Bitmap bitmap)
     {
         for (int y = 0; y < bitmap.Height; y++)
         {
@@ -593,19 +585,19 @@ public class MyApplicationContext : ApplicationContext
         return bitmap;
     }
 
-    private void VersionClicked(object sender, EventArgs e)
+    private static void VersionClicked(object sender, EventArgs e)
     {
         Process.Start(new ProcessStartInfo(RELEASE_URL) { UseShellExecute = true });
     }
 
-    private void Log(string s)
+    private static void Log(string s)
     {
 #if DEBUG
         Console.WriteLine(s);
 #endif
     }
 
-    private void LogError(Exception e)
+    private static void LogError(Exception e)
     {
 #if DEBUG
         Log(e.StackTrace);
