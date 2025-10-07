@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Net;
 using System.Runtime.InteropServices;
 
 using Windows.Devices.Bluetooth;
@@ -13,6 +12,7 @@ using Microsoft.Win32;
 
 using Octokit;
 
+using XBatteryStatus.Extensions;
 using XBatteryStatus.Properties;
 
 using Application = System.Windows.Forms.Application;
@@ -24,6 +24,8 @@ public class MyApplicationContext : ApplicationContext
 {
     private static readonly Version VERSION = new("1.3.4");
     private const string RELEASE_URL = @"https://github.com/tommaier123/XBatteryStatus/releases";
+
+    private static readonly HttpClient s_httpClient = new();
 
     private readonly NotifyIcon _notifyIcon = new();
     private readonly ToolStripMenuItem _themeButton;
@@ -153,10 +155,7 @@ public class MyApplicationContext : ApplicationContext
                                 File.Delete(localMsiPath);
                             }
 
-                            using (var client = new WebClient())
-                            {
-                                client.DownloadFile(latestRelease.MsiUrl, localMsiPath);
-                            }
+                            Task.Run(() => s_httpClient.DownloadFileAsync(latestRelease.MsiUrl, localMsiPath)).Wait();
 
                             Process process = new Process();
                             process.StartInfo.FileName = "msiexec";

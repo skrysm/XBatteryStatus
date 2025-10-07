@@ -15,8 +15,6 @@
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Version>1.3.4</Version>
-
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
