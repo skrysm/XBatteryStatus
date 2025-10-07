@@ -22,7 +22,7 @@ namespace XBatteryStatus;
 
 public class MyApplicationContext : ApplicationContext
 {
-    private const string VERSION = "V1.3.4";
+    private static readonly Version VERSION = new("1.3.4");
     private const string RELEASE_URL = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
     private readonly NotifyIcon _notifyIcon = new();
@@ -52,7 +52,7 @@ public class MyApplicationContext : ApplicationContext
         this._hideTimeoutTimer.Start();
 
         this._softwareUpdateTimer = new Timer();
-        this._softwareUpdateTimer.Tick += (_, _) => CheckSoftwareUpdate();
+        this._softwareUpdateTimer.Tick += (_, _) => Task.Run(CheckSoftwareUpdateAsync).Wait();
         this._softwareUpdateTimer.Interval = 30000;
         this._softwareUpdateTimer.Start();
 
@@ -78,7 +78,7 @@ public class MyApplicationContext : ApplicationContext
         UpdateNumbersButton();
         contextMenu.Items.Add(this._numbersButton);
 
-        ToolStripMenuItem versionButton = new ToolStripMenuItem(VERSION, null, VersionClicked);
+        ToolStripMenuItem versionButton = new ToolStripMenuItem($"V{VERSION}", null, VersionClicked);
         contextMenu.Items.Add(versionButton);
 
         ToolStripMenuItem exitButton = new ToolStripMenuItem("Exit", null, ExitClicked);
@@ -107,19 +107,22 @@ public class MyApplicationContext : ApplicationContext
         this._discoverTimer.Start();
     }
 
-    private void CheckSoftwareUpdate()
+    private async Task CheckSoftwareUpdateAsync()
     {
         try
         {
-            GitHubClient github = new GitHubClient(new ProductHeaderValue("XBatteryStatus"));
-            var all = github.Repository.Release.GetAll("tommaier123", "XBatteryStatus").Result.Where(x => !x.Prerelease).ToList();
-            var latest = all.OrderByDescending(x => int.Parse(x.TagName.Substring(1).Replace(".", ""))).FirstOrDefault();
+            var github = new GitHubClient(new ProductHeaderValue("XBatteryStatus"));
+            var allGitHubReleases = await github.Repository.Release.GetAll("tommaier123", "XBatteryStatus");
+            var latestRelease = allGitHubReleases.Where(release => !release.Prerelease)
+                                                 .Select(release => new AppRelease(release))
+                                                 .OrderByDescending(release => release.Version)
+                                                 .FirstOrDefault();
 
-            if (latest != null && int.Parse(VERSION.Substring(1).Replace(".", "")) < int.Parse(latest.TagName.Substring(1).Replace(".", "")))
+            if (latestRelease != null && VERSION < latestRelease.Version)
             {
-                if (Settings.Default.updateVersion != latest.TagName)
+                if (Settings.Default.updateVersion != latestRelease.TagName)
                 {
-                    Settings.Default.updateVersion = latest.TagName;
+                    Settings.Default.updateVersion = latestRelease.TagName;
                     Settings.Default.reminderCount = 0;
                 }
 
@@ -152,7 +155,7 @@ public class MyApplicationContext : ApplicationContext
 
                             using (var client = new WebClient())
                             {
-                                client.DownloadFile(latest.Assets.First(x => x.BrowserDownloadUrl.EndsWith(".msi")).BrowserDownloadUrl, localMsiPath);
+                                client.DownloadFile(latestRelease.MsiUrl, localMsiPath);
                             }
 
                             Process process = new Process();
@@ -597,5 +600,23 @@ public class MyApplicationContext : ApplicationContext
         Log(e.Message);
         Log("");
 #endif
+    }
+
+    private sealed class AppRelease
+    {
+        private readonly Release _release;
+
+        public string TagName => this._release.TagName;
+
+        public Version Version { get; }
+
+        public Uri MsiUrl => new (this._release.Assets.First(x => x.BrowserDownloadUrl.EndsWith(".msi")).BrowserDownloadUrl);
+
+        public AppRelease(Release release)
+        {
+            this._release = release;
+            // We trim the leading "V".
+            this.Version = new Version(release.TagName[1..]);
+        }
     }
 }
