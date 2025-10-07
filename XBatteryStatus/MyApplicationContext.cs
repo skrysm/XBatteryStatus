@@ -28,90 +28,90 @@ namespace XBatteryStatus
 {
     public class MyApplicationContext : ApplicationContext
     {
-        private readonly string version = "V1.3.4";
-        private readonly string releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
+        private readonly string _version = "V1.3.4";
+        private readonly string _releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
-        private readonly NotifyIcon notifyIcon = new NotifyIcon();
-        private readonly ContextMenuStrip contextMenu;
-        private readonly ToolStripMenuItem themeButton;
-        private readonly ToolStripMenuItem hideButton;
-        private readonly ToolStripMenuItem numbersButton;
+        private readonly NotifyIcon _notifyIcon = new NotifyIcon();
+        private readonly ContextMenuStrip _contextMenu;
+        private readonly ToolStripMenuItem _themeButton;
+        private readonly ToolStripMenuItem _hideButton;
+        private readonly ToolStripMenuItem _numbersButton;
 
-        private readonly Timer UpdateTimer;
-        private readonly Timer DiscoverTimer;
-        private readonly Timer HideTimeoutTimer;
-        private readonly Timer SoftwareUpdateTimer;
+        private readonly Timer _updateTimer;
+        private readonly Timer _discoverTimer;
+        private readonly Timer _hideTimeoutTimer;
+        private readonly Timer _softwareUpdateTimer;
 
-        public List<BluetoothLEDevice> pairedGamepads = new List<BluetoothLEDevice>();
-        public BluetoothLEDevice connectedGamepad;
-        public GattCharacteristic batteryCharacteristic;
-        public Radio bluetoothRadio;
+        public List<BluetoothLEDevice> PairedGamepads = new List<BluetoothLEDevice>();
+        public BluetoothLEDevice ConnectedGamepad;
+        public GattCharacteristic BatteryCharacteristic;
+        public Radio BluetoothRadio;
 
-        private int lastBattery = 100;
+        private int _lastBattery = 100;
 
-        private readonly bool lightMode;
+        private readonly bool _lightMode;
 
         public MyApplicationContext()
         {
-            this.HideTimeoutTimer = new Timer();
-            this.HideTimeoutTimer.Tick += (x, y) => HideTimeout();
-            this.HideTimeoutTimer.Interval = 10000;
-            this.HideTimeoutTimer.Start();
+            this._hideTimeoutTimer = new Timer();
+            this._hideTimeoutTimer.Tick += (x, y) => HideTimeout();
+            this._hideTimeoutTimer.Interval = 10000;
+            this._hideTimeoutTimer.Start();
 
-            this.SoftwareUpdateTimer = new Timer();
-            this.SoftwareUpdateTimer.Tick += (x, y) => { CheckSoftwareUpdate(); };
-            this.SoftwareUpdateTimer.Interval = 30000;
-            this.SoftwareUpdateTimer.Start();
+            this._softwareUpdateTimer = new Timer();
+            this._softwareUpdateTimer.Tick += (x, y) => { CheckSoftwareUpdate(); };
+            this._softwareUpdateTimer.Interval = 30000;
+            this._softwareUpdateTimer.Start();
 
-            this.lightMode = IsLightMode();
+            this._lightMode = IsLightMode();
             SetIcon(-1, "?");
-            this.notifyIcon.Text = "XBatteryStatus: Looking for paired controller";
-            this.notifyIcon.Visible = true;
+            this._notifyIcon.Text = "XBatteryStatus: Looking for paired controller";
+            this._notifyIcon.Visible = true;
 
-            this.contextMenu = new ContextMenuStrip();
+            this._contextMenu = new ContextMenuStrip();
 
-            this.themeButton = new ToolStripMenuItem("Theme");
-            this.themeButton.DropDownItems.Add("Auto", null, ThemeClicked);
-            this.themeButton.DropDownItems.Add("Light", null, ThemeClicked);
-            this.themeButton.DropDownItems.Add("Dark", null, ThemeClicked);
+            this._themeButton = new ToolStripMenuItem("Theme");
+            this._themeButton.DropDownItems.Add("Auto", null, ThemeClicked);
+            this._themeButton.DropDownItems.Add("Light", null, ThemeClicked);
+            this._themeButton.DropDownItems.Add("Dark", null, ThemeClicked);
             UpdateThemeButton();
-            this.contextMenu.Items.Add(this.themeButton);
+            this._contextMenu.Items.Add(this._themeButton);
 
-            this.hideButton = new ToolStripMenuItem("Auto Hide", null, HideClicked);
+            this._hideButton = new ToolStripMenuItem("Auto Hide", null, HideClicked);
             UpdateHideButton();
-            this.contextMenu.Items.Add(this.hideButton);
+            this._contextMenu.Items.Add(this._hideButton);
 
-            this.numbersButton = new ToolStripMenuItem("Numeric", null, NumbersClicked);
+            this._numbersButton = new ToolStripMenuItem("Numeric", null, NumbersClicked);
             UpdateNumbersButton();
-            this.contextMenu.Items.Add(this.numbersButton);
+            this._contextMenu.Items.Add(this._numbersButton);
 
-            ToolStripMenuItem versionButton = new ToolStripMenuItem(this.version, null, VersionClicked);
-            this.contextMenu.Items.Add(versionButton);
+            ToolStripMenuItem versionButton = new ToolStripMenuItem(this._version, null, VersionClicked);
+            this._contextMenu.Items.Add(versionButton);
 
             ToolStripMenuItem exitButton = new ToolStripMenuItem("Exit", null, ExitClicked);
-            this.contextMenu.Items.Add(exitButton);
+            this._contextMenu.Items.Add(exitButton);
 
-            this.notifyIcon.ContextMenuStrip = this.contextMenu;
+            this._notifyIcon.ContextMenuStrip = this._contextMenu;
 
             var radios = Radio.GetRadiosAsync().GetResults();
-            this.bluetoothRadio = radios.FirstOrDefault(radio => radio.Kind == RadioKind.Bluetooth);
-            if (this.bluetoothRadio != null)
+            this.BluetoothRadio = radios.FirstOrDefault(radio => radio.Kind == RadioKind.Bluetooth);
+            if (this.BluetoothRadio != null)
             {
-                this.bluetoothRadio.StateChanged += BluetoothRadio_StateChanged;
+                this.BluetoothRadio.StateChanged += BluetoothRadio_StateChanged;
             }
 
 
             FindBleController();
 
-            this.UpdateTimer = new Timer();
-            this.UpdateTimer.Tick += (x, y) => Update();
-            this.UpdateTimer.Interval = 10000;
-            this.UpdateTimer.Start();
+            this._updateTimer = new Timer();
+            this._updateTimer.Tick += (x, y) => Update();
+            this._updateTimer.Interval = 10000;
+            this._updateTimer.Start();
 
-            this.DiscoverTimer = new Timer();
-            this.DiscoverTimer.Tick += (x, y) => FindBleController();
-            this.DiscoverTimer.Interval = 60000;
-            this.DiscoverTimer.Start();
+            this._discoverTimer = new Timer();
+            this._discoverTimer.Tick += (x, y) => FindBleController();
+            this._discoverTimer.Interval = 60000;
+            this._discoverTimer.Start();
         }
 
         private void CheckSoftwareUpdate()
@@ -122,7 +122,7 @@ namespace XBatteryStatus
                 var all = github.Repository.Release.GetAll("tommaier123", "XBatteryStatus").Result.Where(x => !x.Prerelease).ToList();
                 var latest = all.OrderByDescending(x => int.Parse(x.TagName.Substring(1).Replace(".", ""))).FirstOrDefault();
 
-                if (latest != null && int.Parse(this.version.Substring(1).Replace(".", "")) < int.Parse(latest.TagName.Substring(1).Replace(".", "")))
+                if (latest != null && int.Parse(this._version.Substring(1).Replace(".", "")) < int.Parse(latest.TagName.Substring(1).Replace(".", "")))
                 {
                     if (Settings.Default.updateVersion != latest.TagName)
                     {
@@ -177,7 +177,7 @@ namespace XBatteryStatus
                         .AddText("New Version Available on GitHub")
                         .AddButton(new ToastButton()
                                 .SetContent("Download")
-                                .SetProtocolActivation(new Uri(this.releaseUrl)))
+                                .SetProtocolActivation(new Uri(this._releaseUrl)))
                         .AddButton(new ToastButton()
                                 .SetContent("Update")
                                 .AddArgument("action", "update"))
@@ -188,18 +188,18 @@ namespace XBatteryStatus
                     }
                 }
 
-                this.UpdateTimer.Stop();
+                this._updateTimer.Stop();
             }
             catch (Exception e)
             {
-                this.SoftwareUpdateTimer.Interval = 90 * 60000;
+                this._softwareUpdateTimer.Interval = 90 * 60000;
                 LogError(e);
             }
         }
 
         private async void FindBleController()
         {
-            if (this.bluetoothRadio?.State == RadioState.On)
+            if (this.BluetoothRadio?.State == RadioState.On)
             {
                 List<BluetoothLEDevice> foundGamepads = new List<BluetoothLEDevice>();
 
@@ -227,8 +227,8 @@ namespace XBatteryStatus
                     }
                 }
 
-                var newGamepads = foundGamepads.Except(this.pairedGamepads).ToList();
-                var removedGamepads = this.pairedGamepads.Except(foundGamepads).ToList();
+                var newGamepads = foundGamepads.Except(this.PairedGamepads).ToList();
+                var removedGamepads = this.PairedGamepads.Except(foundGamepads).ToList();
 
                 foreach (var gamepad in newGamepads)
                 {
@@ -243,21 +243,21 @@ namespace XBatteryStatus
                     }
                 }
 
-                this.pairedGamepads = foundGamepads;
+                this.PairedGamepads = foundGamepads;
 
-                if (this.pairedGamepads.Count == 0)
+                if (this.PairedGamepads.Count == 0)
                 {
                     SetIcon(-1, "!");
-                    this.notifyIcon.Text = "XBatteryStatus: No paired controller with battery service found";
+                    this._notifyIcon.Text = "XBatteryStatus: No paired controller with battery service found";
                 }
                 else
                 {
-                    var connectedGamepads = this.pairedGamepads.Where(x => x.ConnectionStatus == BluetoothConnectionStatus.Connected).ToList();
+                    var connectedGamepads = this.PairedGamepads.Where(x => x.ConnectionStatus == BluetoothConnectionStatus.Connected).ToList();
 
                     if (connectedGamepads.Count == 0)
                     {
                         SetIcon(-1, "!");
-                        this.notifyIcon.Text = "XBatteryStatus: No controller is connected";
+                        this._notifyIcon.Text = "XBatteryStatus: No controller is connected";
                     }
                     else
                     {
@@ -268,7 +268,7 @@ namespace XBatteryStatus
             else
             {
                 SetIcon(-1, "!");
-                this.notifyIcon.Text = "XBatteryStatus: Bluetooth is turned off";
+                this._notifyIcon.Text = "XBatteryStatus: Bluetooth is turned off";
             }
 
             Update();
@@ -285,7 +285,7 @@ namespace XBatteryStatus
             {
                 ConnectGamepad(sender);
             }
-            else if (sender == this.connectedGamepad)
+            else if (sender == this.ConnectedGamepad)
             {
                 FindBleController();//another controller might be connected
             }
@@ -293,7 +293,7 @@ namespace XBatteryStatus
 
         public void ConnectGamepad(BluetoothLEDevice device)
         {
-            if (this.connectedGamepad == null || this.connectedGamepad.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
+            if (this.ConnectedGamepad == null || this.ConnectedGamepad.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
             {
                 try
                 {
@@ -302,8 +302,8 @@ namespace XBatteryStatus
 
                     if (service != null && characteristic != null)
                     {
-                        this.connectedGamepad = device;
-                        this.batteryCharacteristic = characteristic;
+                        this.ConnectedGamepad = device;
+                        this.BatteryCharacteristic = characteristic;
                         Update();
                     }
                 }
@@ -313,8 +313,8 @@ namespace XBatteryStatus
 
         public void Update()
         {
-            bool enabled = (this.bluetoothRadio?.State == RadioState.On && this.connectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected) || this.HideTimeoutTimer.Enabled;
-            this.notifyIcon.Visible = Settings.Default.hide ? enabled : true;
+            bool enabled = (this.BluetoothRadio?.State == RadioState.On && this.ConnectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected) || this._hideTimeoutTimer.Enabled;
+            this._notifyIcon.Visible = Settings.Default.hide ? enabled : true;
             if (enabled)
             {
                 ReadBattery();
@@ -323,26 +323,26 @@ namespace XBatteryStatus
 
         private async void ReadBattery()
         {
-            if (this.connectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected && this.batteryCharacteristic != null)
+            if (this.ConnectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected && this.BatteryCharacteristic != null)
             {
-                GattReadResult result = await this.batteryCharacteristic.ReadValueAsync();
+                GattReadResult result = await this.BatteryCharacteristic.ReadValueAsync();
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     var reader = DataReader.FromBuffer(result.Value);
                     int val = reader.ReadByte();
-                    string notify = val + "% - " + this.connectedGamepad.Name;
-                    this.notifyIcon.Text = "XBatteryStatus: " + notify;
+                    string notify = val + "% - " + this.ConnectedGamepad.Name;
+                    this._notifyIcon.Text = "XBatteryStatus: " + notify;
 
                     SetIcon(val);
 
-                    if ((this.lastBattery > 15 && val <= 15) || (this.lastBattery > 10 && val <= 10) || (this.lastBattery > 5 && val <= 5))
+                    if ((this._lastBattery > 15 && val <= 15) || (this._lastBattery > 10 && val <= 10) || (this._lastBattery > 5 && val <= 5))
                     {
                         new ToastContentBuilder().AddText("Low Battery").AddText(notify)
                             .Show();
                     }
 
-                    this.lastBattery = val;
+                    this._lastBattery = val;
                 }
             }
         }
@@ -354,7 +354,7 @@ namespace XBatteryStatus
 
         private void Exit()
         {
-            this.notifyIcon.Visible = false;
+            this._notifyIcon.Visible = false;
             ToastNotificationManagerCompat.Uninstall();
             ToastNotificationManagerCompat.History.Clear();
             Application.Exit();
@@ -362,8 +362,8 @@ namespace XBatteryStatus
 
         private void ThemeClicked(object sender, EventArgs e)
         {
-            if (sender == this.themeButton.DropDownItems[1]) { Settings.Default.theme = 1; }
-            else if (sender == this.themeButton.DropDownItems[2]) { Settings.Default.theme = 2; }
+            if (sender == this._themeButton.DropDownItems[1]) { Settings.Default.theme = 1; }
+            else if (sender == this._themeButton.DropDownItems[2]) { Settings.Default.theme = 2; }
             else { Settings.Default.theme = 0; }
             Settings.Default.Save();
             Update();
@@ -374,21 +374,21 @@ namespace XBatteryStatus
         {
             if (Settings.Default.theme == 1)
             {
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[0]).Checked = false;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[1]).Checked = true;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[2]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[0]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[1]).Checked = true;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[2]).Checked = false;
             }
             else if (Settings.Default.theme == 2)
             {
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[0]).Checked = false;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[1]).Checked = false;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[2]).Checked = true;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[0]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[1]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[2]).Checked = true;
             }
             else
             {
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[0]).Checked = true;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[1]).Checked = false;
-                ((ToolStripMenuItem)this.themeButton.DropDownItems[2]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[0]).Checked = true;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[1]).Checked = false;
+                ((ToolStripMenuItem)this._themeButton.DropDownItems[2]).Checked = false;
             }
 
             FindBleController();
@@ -403,14 +403,14 @@ namespace XBatteryStatus
 
         private void UpdateHideButton()
         {
-            this.hideButton.Checked = Settings.Default.hide;
+            this._hideButton.Checked = Settings.Default.hide;
 
             Update();
         }
 
         private void HideTimeout()
         {
-            this.HideTimeoutTimer.Stop();
+            this._hideTimeoutTimer.Stop();
             Update();
         }
 
@@ -423,7 +423,7 @@ namespace XBatteryStatus
 
         private void UpdateNumbersButton()
         {
-            this.numbersButton.Checked = Settings.Default.numbers;
+            this._numbersButton.Checked = Settings.Default.numbers;
             Update();
         }
 
@@ -450,12 +450,12 @@ namespace XBatteryStatus
 
         public void SetIcon(int val, string s = "")
         {
-            if (this.notifyIcon.Icon != null)
+            if (this._notifyIcon.Icon != null)
             {
-                DestroyIcon(this.notifyIcon.Icon.Handle);
+                DestroyIcon(this._notifyIcon.Icon.Handle);
             }
 
-            this.notifyIcon.Icon = GetIcon(val, s);
+            this._notifyIcon.Icon = GetIcon(val, s);
         }
 
         public Icon GetIcon(int val, string s = "")
@@ -491,15 +491,15 @@ namespace XBatteryStatus
                 }
             }
 
-            if ((Settings.Default.theme == 0 && !this.lightMode) || Settings.Default.theme == 1)
+            if ((Settings.Default.theme == 0 && !this._lightMode) || Settings.Default.theme == 1)
             {
-                IntPtr Hicon = icon.GetHicon();
-                return Icon.FromHandle(Hicon);
+                IntPtr hicon = icon.GetHicon();
+                return Icon.FromHandle(hicon);
             }
             else
             {
-                IntPtr Hicon = InvertBitmap(icon).GetHicon();
-                return Icon.FromHandle(Hicon);
+                IntPtr hicon = InvertBitmap(icon).GetHicon();
+                return Icon.FromHandle(hicon);
             }
         }
 
@@ -523,8 +523,8 @@ namespace XBatteryStatus
 
         public Bitmap AddDigit(Bitmap bitmap, Bitmap number, bool bottom)
         {
-            int x_start = 21;
-            int y_start = bottom ? 17 : 6;
+            int xStart = 21;
+            int yStart = bottom ? 17 : 6;
 
             for (int y = 0; y < number.Height; y++)
             {
@@ -533,7 +533,7 @@ namespace XBatteryStatus
                     Color pixelColor = number.GetPixel(x, y);
                     if (pixelColor.A > 0)
                     {
-                        bitmap.SetPixel(x + x_start, y + y_start, pixelColor);
+                        bitmap.SetPixel(x + xStart, y + yStart, pixelColor);
                     }
                 }
             }
@@ -543,9 +543,9 @@ namespace XBatteryStatus
 
         public Bitmap AddPercentage(Bitmap bitmap, int val)
         {
-            int y_start = 7 + (int)((100 - val) / 5.0 + 0.5);
+            int yStart = 7 + (int)((100 - val) / 5.0 + 0.5);
 
-            for (int y = y_start; y < 27; y++)
+            for (int y = yStart; y < 27; y++)
             {
                 for (int x = 20; x < 28; x++)
                 {
@@ -562,8 +562,8 @@ namespace XBatteryStatus
 
         public Bitmap AddSymbol(Bitmap bitmap, Bitmap symbol)
         {
-            int x_start = 19;
-            int y_start = 6;
+            int xStart = 19;
+            int yStart = 6;
 
             for (int y = 0; y < symbol.Height; y++)
             {
@@ -572,7 +572,7 @@ namespace XBatteryStatus
                     Color pixelColor = symbol.GetPixel(x, y);
                     if (pixelColor.A > 0)
                     {
-                        bitmap.SetPixel(x + x_start, y + y_start, pixelColor);
+                        bitmap.SetPixel(x + xStart, y + yStart, pixelColor);
                     }
                 }
             }
@@ -596,7 +596,7 @@ namespace XBatteryStatus
 
         private void VersionClicked(object sender, EventArgs e)
         {
-            Process.Start(new ProcessStartInfo(this.releaseUrl) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(this._releaseUrl) { UseShellExecute = true });
         }
 
         private void Log(string s)
