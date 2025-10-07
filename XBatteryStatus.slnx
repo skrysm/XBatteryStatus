@@ -1,8 +1,4 @@
 <Solution>
-  <Configurations>
-    <Platform Name="Any CPU" />
-    <Platform Name="x64" />
-  </Configurations>
   <Folder Name="/_SolutionItems/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
@@ -24,7 +20,5 @@
     <File Path="_ProjectCommons/Project.Tool.props" />
     <File Path="_ProjectCommons/StyleGuide.globalconfig" />
   </Folder>
-  <Project Path="XBatteryStatus/XBatteryStatus.csproj">
-    <Platform Solution="*|x64" Project="x64" />
-  </Project>
+  <Project Path="XBatteryStatus/XBatteryStatus.csproj" />
 </Solution>
