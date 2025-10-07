@@ -1,0 +1,15 @@
+﻿<!--
+
+  This .props file is automatically imported by MSBuild/Visual Studio.
+
+  For more details, see: https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
+
+-->
+<!-- You can find the latest version of this file here: https://github.com/skrysm/base-dotnet -->
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)_ProjectCommons/Common.Directory.Build.props" />
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+</Project>
