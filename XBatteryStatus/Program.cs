@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace XBatteryStatus
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var proc = Process.GetCurrentProcess();
             Process[] processes = Process.GetProcessesByName(proc.ProcessName);
