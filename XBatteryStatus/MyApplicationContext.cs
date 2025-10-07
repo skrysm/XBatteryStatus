@@ -58,7 +58,7 @@ public class MyApplicationContext : ApplicationContext
         this._hideTimeoutTimer.Start();
 
         this._softwareUpdateTimer = new Timer();
-        this._softwareUpdateTimer.Tick += (_, _) => { CheckSoftwareUpdate(); };
+        this._softwareUpdateTimer.Tick += (_, _) => CheckSoftwareUpdate();
         this._softwareUpdateTimer.Interval = 30000;
         this._softwareUpdateTimer.Start();
 
