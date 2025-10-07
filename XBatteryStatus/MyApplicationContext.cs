@@ -212,8 +212,10 @@ namespace XBatteryStatus
                             }
                         }
                     }
-                    catch (Exception e)
-                    { //LogError(e);
+                    catch (Exception)
+                    {
+                        // TODO: Add logging?
+                        //LogError(e);
                     }
                 }
 
