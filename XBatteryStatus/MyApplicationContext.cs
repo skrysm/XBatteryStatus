@@ -53,12 +53,12 @@ public class MyApplicationContext : ApplicationContext
     public MyApplicationContext()
     {
         this._hideTimeoutTimer = new Timer();
-        this._hideTimeoutTimer.Tick += (x, y) => HideTimeout();
+        this._hideTimeoutTimer.Tick += (_, _) => HideTimeout();
         this._hideTimeoutTimer.Interval = 10000;
         this._hideTimeoutTimer.Start();
 
         this._softwareUpdateTimer = new Timer();
-        this._softwareUpdateTimer.Tick += (x, y) => { CheckSoftwareUpdate(); };
+        this._softwareUpdateTimer.Tick += (_, _) => { CheckSoftwareUpdate(); };
         this._softwareUpdateTimer.Interval = 30000;
         this._softwareUpdateTimer.Start();
 
@@ -103,12 +103,12 @@ public class MyApplicationContext : ApplicationContext
         FindBleController();
 
         this._updateTimer = new Timer();
-        this._updateTimer.Tick += (x, y) => Update();
+        this._updateTimer.Tick += (_, _) => Update();
         this._updateTimer.Interval = 10000;
         this._updateTimer.Start();
 
         this._discoverTimer = new Timer();
-        this._discoverTimer.Tick += (x, y) => FindBleController();
+        this._discoverTimer.Tick += (_, _) => FindBleController();
         this._discoverTimer.Interval = 60000;
         this._discoverTimer.Start();
     }
