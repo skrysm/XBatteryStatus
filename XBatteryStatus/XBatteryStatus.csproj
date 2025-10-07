@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$(ProjectCommonsDirectory)Project.Shared.props" />
+
   <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -12,8 +14,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <DebugType>embedded</DebugType>
     <Version>1.3.4</Version>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

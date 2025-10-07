@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
@@ -22,6 +16,7 @@ using Octokit;
 using XBatteryStatus.Properties;
 
 using Application = System.Windows.Forms.Application;
+using Timer = System.Windows.Forms.Timer;
 
 namespace XBatteryStatus;
 
@@ -41,9 +36,9 @@ public class MyApplicationContext : ApplicationContext
     private readonly Timer _softwareUpdateTimer;
 
     private List<BluetoothLEDevice> _pairedGamepads = [];
-    private BluetoothLEDevice _connectedGamepad;
-    private GattCharacteristic _batteryCharacteristic;
-    private readonly Radio _bluetoothRadio;
+    private BluetoothLEDevice? _connectedGamepad;
+    private GattCharacteristic? _batteryCharacteristic;
+    private readonly Radio? _bluetoothRadio;
 
     private int _lastBattery = 100;
 
@@ -209,8 +204,8 @@ public class MyApplicationContext : ApplicationContext
 
                     if (bleDevice?.Appearance.SubCategory == BluetoothLEAppearanceSubcategories.Gamepad) //get the gamepads
                     {
-                        GattDeviceService service = bleDevice.GetGattService(new Guid("0000180f-0000-1000-8000-00805f9b34fb"));
-                        GattCharacteristic characteristic = service.GetCharacteristics(new Guid("00002a19-0000-1000-8000-00805f9b34fb")).First();
+                        var service = bleDevice.GetGattService(new Guid("0000180f-0000-1000-8000-00805f9b34fb"));
+                        var characteristic = service.GetCharacteristics(new Guid("00002a19-0000-1000-8000-00805f9b34fb")).First();
 
                         if (service != null && characteristic != null) //get the gamepads with battery status
                         {
@@ -235,10 +230,7 @@ public class MyApplicationContext : ApplicationContext
 
             foreach (var gamepad in removedGamepads)
             {
-                if (gamepad != null)
-                {
-                    gamepad.ConnectionStatusChanged -= ConnectionStatusChanged;
-                }
+                gamepad.ConnectionStatusChanged -= ConnectionStatusChanged;
             }
 
             this._pairedGamepads = foundGamepads;
@@ -295,8 +287,8 @@ public class MyApplicationContext : ApplicationContext
         {
             try
             {
-                GattDeviceService service = device.GetGattService(new Guid("0000180f-0000-1000-8000-00805f9b34fb"));
-                GattCharacteristic characteristic = service.GetCharacteristics(new Guid("00002a19-0000-1000-8000-00805f9b34fb")).First();
+                var service = device.GetGattService(new Guid("0000180f-0000-1000-8000-00805f9b34fb"));
+                var characteristic = service.GetCharacteristics(new Guid("00002a19-0000-1000-8000-00805f9b34fb")).First();
 
                 if (service != null && characteristic != null)
                 {
@@ -345,7 +337,7 @@ public class MyApplicationContext : ApplicationContext
         }
     }
 
-    private void ExitClicked(object sender, EventArgs e)
+    private void ExitClicked(object? sender, EventArgs e)
     {
         Exit();
     }
@@ -358,7 +350,7 @@ public class MyApplicationContext : ApplicationContext
         Application.Exit();
     }
 
-    private void ThemeClicked(object sender, EventArgs e)
+    private void ThemeClicked(object? sender, EventArgs e)
     {
         if (sender == this._themeButton.DropDownItems[1]) { Settings.Default.theme = 1; }
         else if (sender == this._themeButton.DropDownItems[2]) { Settings.Default.theme = 2; }
@@ -392,7 +384,7 @@ public class MyApplicationContext : ApplicationContext
         FindBleController();
     }
 
-    private void HideClicked(object sender, EventArgs e)
+    private void HideClicked(object? sender, EventArgs e)
     {
         Settings.Default.hide = !Settings.Default.hide;
         Settings.Default.Save();
@@ -412,7 +404,7 @@ public class MyApplicationContext : ApplicationContext
         Update();
     }
 
-    private void NumbersClicked(object sender, EventArgs e)
+    private void NumbersClicked(object? sender, EventArgs e)
     {
         Settings.Default.numbers = !Settings.Default.numbers;
         Settings.Default.Save();
@@ -427,11 +419,11 @@ public class MyApplicationContext : ApplicationContext
 
     private static bool IsLightMode()
     {
-        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+        var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
 
         if (key != null)
         {
-            object registryValueObject = key.GetValue("AppsUseLightTheme");
+            var registryValueObject = key.GetValue("AppsUseLightTheme");
 
             if (registryValueObject != null)
             {
@@ -586,7 +578,7 @@ public class MyApplicationContext : ApplicationContext
         return bitmap;
     }
 
-    private static void VersionClicked(object sender, EventArgs e)
+    private static void VersionClicked(object? sender, EventArgs e)
     {
         Process.Start(new ProcessStartInfo(RELEASE_URL) { UseShellExecute = true });
     }
@@ -601,7 +593,7 @@ public class MyApplicationContext : ApplicationContext
     private static void LogError(Exception e)
     {
 #if DEBUG
-        Log(e.StackTrace);
+        Log(e.StackTrace ?? "");
         Log(e.Message);
         Log("");
 #endif
