@@ -42,10 +42,10 @@ public class MyApplicationContext : ApplicationContext
     private readonly Timer _hideTimeoutTimer;
     private readonly Timer _softwareUpdateTimer;
 
-    public List<BluetoothLEDevice> PairedGamepads = new();
-    public BluetoothLEDevice ConnectedGamepad;
-    public GattCharacteristic BatteryCharacteristic;
-    public Radio BluetoothRadio;
+    private List<BluetoothLEDevice> _pairedGamepads = new();
+    private BluetoothLEDevice _connectedGamepad;
+    private GattCharacteristic _batteryCharacteristic;
+    private Radio _bluetoothRadio;
 
     private int _lastBattery = 100;
 
@@ -94,10 +94,10 @@ public class MyApplicationContext : ApplicationContext
         this._notifyIcon.ContextMenuStrip = this._contextMenu;
 
         var radios = Radio.GetRadiosAsync().GetResults();
-        this.BluetoothRadio = radios.FirstOrDefault(radio => radio.Kind == RadioKind.Bluetooth);
-        if (this.BluetoothRadio != null)
+        this._bluetoothRadio = radios.FirstOrDefault(radio => radio.Kind == RadioKind.Bluetooth);
+        if (this._bluetoothRadio != null)
         {
-            this.BluetoothRadio.StateChanged += BluetoothRadio_StateChanged;
+            this._bluetoothRadio.StateChanged += BluetoothRadio_StateChanged;
         }
 
 
@@ -199,7 +199,7 @@ public class MyApplicationContext : ApplicationContext
 
     private async void FindBleController()
     {
-        if (this.BluetoothRadio?.State == RadioState.On)
+        if (this._bluetoothRadio?.State == RadioState.On)
         {
             List<BluetoothLEDevice> foundGamepads = new List<BluetoothLEDevice>();
 
@@ -227,8 +227,8 @@ public class MyApplicationContext : ApplicationContext
                 }
             }
 
-            var newGamepads = foundGamepads.Except(this.PairedGamepads).ToList();
-            var removedGamepads = this.PairedGamepads.Except(foundGamepads).ToList();
+            var newGamepads = foundGamepads.Except(this._pairedGamepads).ToList();
+            var removedGamepads = this._pairedGamepads.Except(foundGamepads).ToList();
 
             foreach (var gamepad in newGamepads)
             {
@@ -243,16 +243,16 @@ public class MyApplicationContext : ApplicationContext
                 }
             }
 
-            this.PairedGamepads = foundGamepads;
+            this._pairedGamepads = foundGamepads;
 
-            if (this.PairedGamepads.Count == 0)
+            if (this._pairedGamepads.Count == 0)
             {
                 SetIcon(-1, "!");
                 this._notifyIcon.Text = "XBatteryStatus: No paired controller with battery service found";
             }
             else
             {
-                var connectedGamepads = this.PairedGamepads.Where(x => x.ConnectionStatus == BluetoothConnectionStatus.Connected).ToList();
+                var connectedGamepads = this._pairedGamepads.Where(x => x.ConnectionStatus == BluetoothConnectionStatus.Connected).ToList();
 
                 if (connectedGamepads.Count == 0)
                 {
@@ -285,7 +285,7 @@ public class MyApplicationContext : ApplicationContext
         {
             ConnectGamepad(sender);
         }
-        else if (sender == this.ConnectedGamepad)
+        else if (sender == this._connectedGamepad)
         {
             FindBleController();//another controller might be connected
         }
@@ -293,7 +293,7 @@ public class MyApplicationContext : ApplicationContext
 
     public void ConnectGamepad(BluetoothLEDevice device)
     {
-        if (this.ConnectedGamepad == null || this.ConnectedGamepad.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
+        if (this._connectedGamepad == null || this._connectedGamepad.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
         {
             try
             {
@@ -302,8 +302,8 @@ public class MyApplicationContext : ApplicationContext
 
                 if (service != null && characteristic != null)
                 {
-                    this.ConnectedGamepad = device;
-                    this.BatteryCharacteristic = characteristic;
+                    this._connectedGamepad = device;
+                    this._batteryCharacteristic = characteristic;
                     Update();
                 }
             }
@@ -313,7 +313,7 @@ public class MyApplicationContext : ApplicationContext
 
     public void Update()
     {
-        bool enabled = (this.BluetoothRadio?.State == RadioState.On && this.ConnectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected) || this._hideTimeoutTimer.Enabled;
+        bool enabled = (this._bluetoothRadio?.State == RadioState.On && this._connectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected) || this._hideTimeoutTimer.Enabled;
         this._notifyIcon.Visible = Settings.Default.hide ? enabled : true;
         if (enabled)
         {
@@ -323,15 +323,15 @@ public class MyApplicationContext : ApplicationContext
 
     private async void ReadBattery()
     {
-        if (this.ConnectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected && this.BatteryCharacteristic != null)
+        if (this._connectedGamepad?.ConnectionStatus == BluetoothConnectionStatus.Connected && this._batteryCharacteristic != null)
         {
-            GattReadResult result = await this.BatteryCharacteristic.ReadValueAsync();
+            GattReadResult result = await this._batteryCharacteristic.ReadValueAsync();
 
             if (result.Status == GattCommunicationStatus.Success)
             {
                 var reader = DataReader.FromBuffer(result.Value);
                 int val = reader.ReadByte();
-                string notify = val + "% - " + this.ConnectedGamepad.Name;
+                string notify = val + "% - " + this._connectedGamepad.Name;
                 this._notifyIcon.Text = "XBatteryStatus: " + notify;
 
                 SetIcon(val);
