@@ -28,8 +28,8 @@ namespace XBatteryStatus;
 
 public class MyApplicationContext : ApplicationContext
 {
-    private readonly string _version = "V1.3.4";
-    private readonly string _releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
+    private const string VERSION = "V1.3.4";
+    private const string RELEASE_URL = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
     private readonly NotifyIcon _notifyIcon = new();
     private readonly ContextMenuStrip _contextMenu;
@@ -85,7 +85,7 @@ public class MyApplicationContext : ApplicationContext
         UpdateNumbersButton();
         this._contextMenu.Items.Add(this._numbersButton);
 
-        ToolStripMenuItem versionButton = new ToolStripMenuItem(this._version, null, VersionClicked);
+        ToolStripMenuItem versionButton = new ToolStripMenuItem(VERSION, null, VersionClicked);
         this._contextMenu.Items.Add(versionButton);
 
         ToolStripMenuItem exitButton = new ToolStripMenuItem("Exit", null, ExitClicked);
@@ -122,7 +122,7 @@ public class MyApplicationContext : ApplicationContext
             var all = github.Repository.Release.GetAll("tommaier123", "XBatteryStatus").Result.Where(x => !x.Prerelease).ToList();
             var latest = all.OrderByDescending(x => int.Parse(x.TagName.Substring(1).Replace(".", ""))).FirstOrDefault();
 
-            if (latest != null && int.Parse(this._version.Substring(1).Replace(".", "")) < int.Parse(latest.TagName.Substring(1).Replace(".", "")))
+            if (latest != null && int.Parse(VERSION.Substring(1).Replace(".", "")) < int.Parse(latest.TagName.Substring(1).Replace(".", "")))
             {
                 if (Settings.Default.updateVersion != latest.TagName)
                 {
@@ -177,7 +177,7 @@ public class MyApplicationContext : ApplicationContext
                         .AddText("New Version Available on GitHub")
                         .AddButton(new ToastButton()
                                    .SetContent("Download")
-                                   .SetProtocolActivation(new Uri(this._releaseUrl)))
+                                   .SetProtocolActivation(new Uri(RELEASE_URL)))
                         .AddButton(new ToastButton()
                                    .SetContent("Update")
                                    .AddArgument("action", "update"))
@@ -596,7 +596,7 @@ public class MyApplicationContext : ApplicationContext
 
     private void VersionClicked(object sender, EventArgs e)
     {
-        Process.Start(new ProcessStartInfo(this._releaseUrl) { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(RELEASE_URL) { UseShellExecute = true });
     }
 
     private void Log(string s)
