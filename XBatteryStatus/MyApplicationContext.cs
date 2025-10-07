@@ -28,19 +28,19 @@ namespace XBatteryStatus
 {
     public class MyApplicationContext : ApplicationContext
     {
-        private string version = "V1.3.4";
-        private string releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
+        private readonly string version = "V1.3.4";
+        private readonly string releaseUrl = @"https://github.com/tommaier123/XBatteryStatus/releases";
 
-        private NotifyIcon notifyIcon = new NotifyIcon();
-        private ContextMenuStrip contextMenu;
-        private ToolStripMenuItem themeButton;
-        private ToolStripMenuItem hideButton;
-        private ToolStripMenuItem numbersButton;
+        private readonly NotifyIcon notifyIcon = new NotifyIcon();
+        private readonly ContextMenuStrip contextMenu;
+        private readonly ToolStripMenuItem themeButton;
+        private readonly ToolStripMenuItem hideButton;
+        private readonly ToolStripMenuItem numbersButton;
 
-        private Timer UpdateTimer;
-        private Timer DiscoverTimer;
-        private Timer HideTimeoutTimer;
-        private Timer SoftwareUpdateTimer;
+        private readonly Timer UpdateTimer;
+        private readonly Timer DiscoverTimer;
+        private readonly Timer HideTimeoutTimer;
+        private readonly Timer SoftwareUpdateTimer;
 
         public List<BluetoothLEDevice> pairedGamepads = new List<BluetoothLEDevice>();
         public BluetoothLEDevice connectedGamepad;
@@ -49,7 +49,7 @@ namespace XBatteryStatus
 
         private int lastBattery = 100;
 
-        private bool lightMode;
+        private readonly bool lightMode;
 
         public MyApplicationContext()
         {
