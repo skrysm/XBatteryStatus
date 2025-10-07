@@ -42,10 +42,10 @@ public class MyApplicationContext : ApplicationContext
     private readonly Timer _hideTimeoutTimer;
     private readonly Timer _softwareUpdateTimer;
 
-    private List<BluetoothLEDevice> _pairedGamepads = new();
+    private List<BluetoothLEDevice> _pairedGamepads = [];
     private BluetoothLEDevice _connectedGamepad;
     private GattCharacteristic _batteryCharacteristic;
-    private Radio _bluetoothRadio;
+    private readonly Radio _bluetoothRadio;
 
     private int _lastBattery = 100;
 
